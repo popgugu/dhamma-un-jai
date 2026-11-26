@@ -1,0 +1,6 @@
+{
+  "name": "ธรรมะอุ่นใจ · Dhamma Un Jai",
+  "description": "A calm, bilingual Thai and English non-profit dharma reference for a peaceful mind.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

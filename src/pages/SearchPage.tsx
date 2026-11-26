@@ -240,6 +240,12 @@ export function SearchPage({
               <div className="space-y-3">
                 {results.cardClips.map(({ clip }) => {
                   const clipTitle = getLocalized(clip.title, locale);
+                  const clipCategory = clip.category.th
+                    ? getLocalized(clip.category, locale)
+                    : null;
+                  const clipQuote = clip.quote
+                    ? getLocalized(clip.quote, locale)
+                    : null;
                   const targetRoute: Route = { page: 'cards' };
 
                   return (
@@ -255,14 +261,14 @@ export function SearchPage({
                             {t(locale, 'cards.clipNumberPrefix')}{' '}
                             <HighlightedText text={clip.clipNo} query={trimmedQuery} />
                           </span>
-                          {clip.category && (
+                          {clipCategory && clipCategory.text && (
                             <>
                               <span aria-hidden="true" className="text-[#7A8B6F]/50">
                                 ·
                               </span>
                               <span className="text-[#56684C] dark:text-[#99AA8E]">
                                 <HighlightedText
-                                  text={clip.category}
+                                  text={clipCategory.text}
                                   query={trimmedQuery}
                                 />
                               </span>
@@ -287,6 +293,17 @@ export function SearchPage({
                           </span>
                         )}
                       </h3>
+
+                      {clipQuote && clipQuote.text && (
+                        <p className="mt-2 font-serif text-[16px] leading-[1.75] text-[#6C655C] dark:text-[#B6AEA2]">
+                          “
+                          <HighlightedText
+                            text={createMatchSnippet(clipQuote.text, trimmedQuery)}
+                            query={trimmedQuery}
+                          />
+                          ”
+                        </p>
+                      )}
                     </a>
                   );
                 })}

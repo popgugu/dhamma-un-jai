@@ -49,6 +49,7 @@ export const th: Dictionary = {
     emptyState: 'เร็วๆ นี้ — ธรรมะจากการ์ดจะทยอยเพิ่มเข้ามา',
     clipNumberPrefix: 'คลิปที่',
     uncategorized: 'หมวดอื่นๆ',
+    watchClip: 'ดูคลิป',
   },
   search: {
     title: 'ค้นหา',

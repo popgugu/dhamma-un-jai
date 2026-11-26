@@ -40,7 +40,7 @@ test('Noble Eightfold Path groups into three trainings (2, 3, 3 items)', () => {
   );
 });
 
-test('card clips group by plain-text category label in order of first appearance', () => {
+test('card clips group by Thai category label in order of first appearance with localized heading', () => {
   assert.deepEqual(groupCardClipsByCategory([]), []);
 
   const sampleClips: CardClip[] = [
@@ -48,19 +48,19 @@ test('card clips group by plain-text category label in order of first appearance
       clipNo: '01',
       title: { th: 'เมตตาต่อทุกชีวิต', en: 'Kindness to All Beings' },
       date: '2026-11-20',
-      category: 'สติในชีวิตประจำวัน',
+      category: { th: 'สติในชีวิตประจำวัน', en: 'Daily Mindfulness' },
     },
     {
       clipNo: '02',
       title: { th: 'ปล่อยวางความโกรธ', en: 'Letting Go of Anger' },
       date: '2026-11-21',
-      category: 'ความสงบใจ',
+      category: { th: 'ความสงบใจ', en: 'Peace of Mind' },
     },
     {
       clipNo: '03',
       title: { th: 'ลมหายใจที่ผ่อนคลาย', en: 'A Relaxed Breath' },
       date: '2026-11-22',
-      category: 'สติในชีวิตประจำวัน',
+      category: { th: 'สติในชีวิตประจำวัน' },
     },
   ];
 
@@ -68,7 +68,10 @@ test('card clips group by plain-text category label in order of first appearance
   assert.equal(grouped.length, 2);
   assert.deepEqual(
     grouped.map((g) => g.category),
-    ['สติในชีวิตประจำวัน', 'ความสงบใจ']
+    [
+      { th: 'สติในชีวิตประจำวัน', en: 'Daily Mindfulness' },
+      { th: 'ความสงบใจ', en: 'Peace of Mind' },
+    ]
   );
   assert.deepEqual(
     grouped[0].clips.map((c) => c.clipNo),

@@ -32,10 +32,11 @@ const SAMPLE_BUNDLE: SheetCsvBundle = {
     'missing-category,1,แหล่งอ้างอิงหลงหมวด,Orphan source',
   ].join('\n'),
   cardClips: [
-    'clip_no,date,status,category,title_th,title_en',
-    '10,2026-11-20,published,ศีล 5,เมตตาในชีวิตประจำวัน,Kindness in Daily Life',
-    '2,2026-11-18,published,สติ,หายใจเข้าออกอย่างรู้ตัว,',
-    '3,2026-11-19,draft,สติ,คลิปร่าง,Draft Clip',
+    'clip_no,date,status,category,title_th,title_en,quote_th,quote_en,youtube_url,category_en',
+    '10,2026-11-20,published,ศีล 5,เมตตาในชีวิตประจำวัน,Kindness in Daily Life,ความเมตตาเริ่มต้นที่ใจสงบ,Kindness begins with a calm heart.,https://www.youtube.com/watch?v=abc123,Five Precepts',
+    '2,2026-11-18,published,สติ,หายใจเข้าออกอย่างรู้ตัว,,ลมหายใจคือบ้านของใจ,,http://insecure.example.com/clip,Mindfulness',
+    '4,2026-11-21,published,สติ,ปล่อยวาง,Letting Go,วางลงใจก็เบา,Put it down and the heart grows light.,javascript:alert(1),Mindfulness',
+    '3,2026-11-19,draft,สติ,คลิปร่าง,Draft Clip,คำคมร่าง,Draft quote,https://youtube.com/watch?v=draft,Mindfulness',
   ].join('\n'),
 };
 
@@ -77,17 +78,57 @@ test('loader parses all 5 tabs, sorts correctly, and hides draft rows', () => {
     assert.equal(path.items[0].groupId, 'wisdom');
     assert.equal(path.items[1].groupId, undefined);
 
-    // CardClips sorted by clip_no (2 before 10); draft clip 3 hidden
+    // CardClips sorted by clip_no (2, 4, 10); draft clip 3 hidden
     assert.deepEqual(
       result.cardClips.map((c) => c.clipNo),
-      ['2', '10']
+      ['2', '4', '10']
     );
-    assert.equal(result.cardClips[0].category, 'สติ');
 
     // Unknown category_id rows logged warnings and did not crash
     assert.ok(
       warnings.some((w) => String(w[0]).includes('Items') && String(w[0]).includes('missing-category')),
       'Expected console.warn for unknown category_id in Items'
+    );
+  } finally {
+    console.warn = origWarn;
+  }
+});
+
+test('loader maps CardClips quote, category_en, and validates https youtube_url', () => {
+  const warnings: unknown[][] = [];
+  const origWarn = console.warn;
+  console.warn = (...args: unknown[]) => warnings.push(args);
+
+  try {
+    const result = parseSheetContent(SAMPLE_BUNDLE);
+    const clip2 = result.cardClips.find((c) => c.clipNo === '2');
+    const clip4 = result.cardClips.find((c) => c.clipNo === '4');
+    const clip10 = result.cardClips.find((c) => c.clipNo === '10');
+
+    assert.ok(clip2 && clip4 && clip10);
+
+    // Localized category + quote + valid https youtubeUrl
+    assert.deepEqual(clip10.category, { th: 'ศีล 5', en: 'Five Precepts' });
+    assert.deepEqual(clip10.quote, {
+      th: 'ความเมตตาเริ่มต้นที่ใจสงบ',
+      en: 'Kindness begins with a calm heart.',
+    });
+    assert.equal(clip10.youtubeUrl, 'https://www.youtube.com/watch?v=abc123');
+
+    // Empty quote_en falls back to Thai; non-https youtubeUrl ignored with warning
+    assert.deepEqual(clip2.category, { th: 'สติ', en: 'Mindfulness' });
+    assert.deepEqual(clip2.quote, { th: 'ลมหายใจคือบ้านของใจ' });
+    assert.equal(clip2.youtubeUrl, undefined);
+
+    // javascript: URL rejected with warning
+    assert.equal(clip4.youtubeUrl, undefined);
+    assert.ok(
+      warnings.some((w) => String(w[0]).includes('youtube_url') && String(w[0]).includes('(2)')),
+      'Expected warning for http:// youtube_url'
+    );
+    assert.ok(
+      warnings.some((w) => String(w[0]).includes('youtube_url') && String(w[0]).includes('(4)')),
+      'Expected warning for javascript: youtube_url'
     );
   } finally {
     console.warn = origWarn;

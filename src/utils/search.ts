@@ -21,6 +21,7 @@ export interface TeachingSearchResult {
 
 export interface CardClipSearchResult {
   clip: CardClip;
+  matchedInQuote: boolean;
 }
 
 export interface SearchResults {
@@ -214,13 +215,15 @@ export function searchContent(
 
   const cardClips: CardClipSearchResult[] = [];
   for (const clip of content.cardClips) {
+    const quoteMatched = localizedMatches(clip.quote, normQuery);
     const matched =
       localizedMatches(clip.title, normQuery) ||
       stringMatches(clip.clipNo, normQuery) ||
-      stringMatches(clip.category, normQuery);
+      localizedMatches(clip.category, normQuery) ||
+      quoteMatched;
 
     if (matched) {
-      cardClips.push({ clip });
+      cardClips.push({ clip, matchedInQuote: quoteMatched });
     }
   }
 

@@ -77,6 +77,7 @@ export interface Dictionary {
     emptyState: string;
     clipNumberPrefix: string;
     uncategorized: string;
+    watchClip: string;
   };
   search: {
     title: string;

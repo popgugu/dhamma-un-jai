@@ -34,8 +34,10 @@ export interface DharmaCategory {
 export interface CardClip {
   clipNo: string;
   date: string;
-  category: string;
+  category: LocalizedText;
   title: LocalizedText;
+  quote?: LocalizedText;
+  youtubeUrl?: string;
 }
 
 export const categories: DharmaCategory[] = [

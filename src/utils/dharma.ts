@@ -30,31 +30,37 @@ export function groupCategoryItems(category: DharmaCategory): GroupedItemsSectio
 }
 
 export interface CardClipsByLabel {
-  category: string;
+  key: string;
+  category: CardClip['category'];
   clips: CardClip[];
 }
 
 /**
- * Group card clips by their plain-text category label in order of first appearance.
+ * Group card clips by their Thai category label (category.th) in order of first appearance,
+ * preserving the localized category object so headings display in the active language.
  */
 export function groupCardClipsByCategory(clips: CardClip[]): CardClipsByLabel[] {
   if (clips.length === 0) {
     return [];
   }
 
-  const groups = new Map<string, CardClip[]>();
+  const groups = new Map<string, CardClipsByLabel>();
   for (const clip of clips) {
-    const label = clip.category.trim();
-    const bucket = groups.get(label);
-    if (bucket) {
-      bucket.push(clip);
+    const key = clip.category.th.trim();
+    const existing = groups.get(key);
+    if (existing) {
+      existing.clips.push(clip);
+      if (!existing.category.en && clip.category.en) {
+        existing.category = { ...existing.category, en: clip.category.en };
+      }
     } else {
-      groups.set(label, [clip]);
+      groups.set(key, {
+        key,
+        category: { ...clip.category },
+        clips: [clip],
+      });
     }
   }
 
-  return Array.from(groups.entries()).map(([category, categoryClips]) => ({
-    category,
-    clips: categoryClips,
-  }));
+  return Array.from(groups.values());
 }

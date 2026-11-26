@@ -21,9 +21,18 @@ const BUILT_IN_SNAPSHOT: ContentData = {
 function isValidContentData(value: unknown): value is ContentData {
   if (!value || typeof value !== 'object') return false;
   const candidate = value as Record<string, unknown>;
-  return (
-    Array.isArray(candidate.categories) && Array.isArray(candidate.cardClips)
-  );
+  if (!Array.isArray(candidate.categories) || !Array.isArray(candidate.cardClips)) {
+    return false;
+  }
+  return candidate.cardClips.every((clip) => {
+    if (!clip || typeof clip !== 'object') return false;
+    const cat = (clip as Record<string, unknown>).category;
+    return (
+      typeof cat === 'object' &&
+      cat !== null &&
+      typeof (cat as Record<string, unknown>).th === 'string'
+    );
+  });
 }
 
 function readCachedContent(): ContentData | null {

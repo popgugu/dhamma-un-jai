@@ -367,8 +367,13 @@ export function parseSheetContent(bundle: SheetCsvBundle): ContentData {
     const clipNo = cell(row, 'clip_no');
     const date = cell(row, 'date');
     const status = cell(row, 'status');
-    const category = cell(row, 'category');
+    const category =
+      buildLocalized(cell(row, 'category'), cell(row, 'category_en')) ?? {
+        th: '',
+      };
     const title = buildLocalized(cell(row, 'title_th'), cell(row, 'title_en'));
+    const quote = buildLocalized(cell(row, 'quote_th'), cell(row, 'quote_en'));
+    const youtubeUrlRaw = cell(row, 'youtube_url');
 
     if (!clipNo) {
       console.warn(`[content] Skipping CardClips row ${sheetRow}: missing required "clip_no".`);
@@ -386,11 +391,24 @@ export function parseSheetContent(bundle: SheetCsvBundle): ContentData {
       return;
     }
 
+    let youtubeUrl: string | undefined;
+    if (youtubeUrlRaw) {
+      if (youtubeUrlRaw.startsWith('https://')) {
+        youtubeUrl = youtubeUrlRaw;
+      } else {
+        console.warn(
+          `[content] Ignoring invalid youtube_url in CardClips row ${sheetRow} (${clipNo}): must start with "https://".`
+        );
+      }
+    }
+
     cardClips.push({
       clipNo,
       date,
       category,
       title,
+      ...(quote ? { quote } : {}),
+      ...(youtubeUrl ? { youtubeUrl } : {}),
     });
   });
 

@@ -2,9 +2,8 @@ import { ChevronRight } from 'lucide-react';
 import type { MouseEvent } from 'react';
 import { BackButton } from '../components/BackButton';
 import { LocalizedTextView } from '../components/LocalizedTextView';
-import { cardClips, categories } from '../data';
+import { useContent } from '../content/ContentProvider';
 import { t, type Locale } from '../i18n';
-import { getCategoryClipProgress } from '../utils/dharma';
 import { buildUrl, type Route } from '../utils/routing';
 
 interface CompleteTeachingsPageProps {
@@ -16,6 +15,8 @@ export function CompleteTeachingsPage({
   locale,
   onNavigate,
 }: CompleteTeachingsPageProps) {
+  const { categories } = useContent();
+
   const handleCategoryClick = (categoryId: string) => (
     e: MouseEvent<HTMLAnchorElement>
   ) => {
@@ -43,7 +44,6 @@ export function CompleteTeachingsPage({
 
       <div className="space-y-4 sm:space-y-5">
         {categories.map((category, index) => {
-          const progress = getCategoryClipProgress(category, cardClips);
           const href = buildUrl({ page: 'category', categoryId: category.id }, locale);
 
           return (
@@ -75,26 +75,8 @@ export function CompleteTeachingsPage({
                 />
               </div>
 
-              <div className="mt-6 sm:pl-7">
-                <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[15px] text-[#6C655C] dark:text-[#B6AEA2] tabular-nums">
-                  <span>{t(locale, 'teachings.itemCount', { N: progress.total })}</span>
-                  <span>
-                    {t(locale, 'teachings.clipProgress', {
-                      X: progress.withClips,
-                      N: progress.total,
-                    })}
-                  </span>
-                </div>
-
-                <div
-                  className="mt-2.5 h-1 w-full rounded-full bg-[#EFE9DC] dark:bg-[#312C26] overflow-hidden"
-                  aria-hidden="true"
-                >
-                  <div
-                    className="h-full rounded-full bg-[#C8963E] dark:bg-[#DFB15E] transition-[width] duration-300"
-                    style={{ width: `${progress.percent}%` }}
-                  />
-                </div>
+              <div className="mt-5 sm:pl-7 text-[15px] text-[#6C655C] dark:text-[#B6AEA2] tabular-nums">
+                {t(locale, 'teachings.itemCount', { N: category.items.length })}
               </div>
             </a>
           );

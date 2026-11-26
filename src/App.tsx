@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
+import { ContentProvider } from './content/ContentProvider';
 import { resolveInitialLocale, saveLocale, t, type Locale } from './i18n';
 import { CardTeachingsPage } from './pages/CardTeachingsPage';
 import { CategoryDetailPage } from './pages/CategoryDetailPage';
 import { CompleteTeachingsPage } from './pages/CompleteTeachingsPage';
 import { HomePage } from './pages/HomePage';
+import { SearchPage } from './pages/SearchPage';
 import { buildUrl, parseRoute, type Route } from './utils/routing';
 
 const THEME_STORAGE_KEY = 'dhamma-un-jai-theme';
@@ -22,7 +24,7 @@ function getInitialDarkMode(): boolean {
   return false;
 }
 
-export default function App() {
+function AppShell() {
   const [locale, setLocale] = useState<Locale>(() =>
     typeof window !== 'undefined'
       ? resolveInitialLocale(window.location.search)
@@ -30,7 +32,11 @@ export default function App() {
   );
   const [route, setRoute] = useState<Route>(() =>
     typeof window !== 'undefined'
-      ? parseRoute(window.location.pathname)
+      ? parseRoute(
+          window.location.pathname,
+          window.location.search,
+          window.location.hash
+        )
       : { page: 'home' }
   );
   const [isDark, setIsDark] = useState<boolean>(getInitialDarkMode);
@@ -47,7 +53,7 @@ export default function App() {
       locale,
       hasExplicitParam && locale === 'th'
     );
-    const currentUrl = `${window.location.pathname}${window.location.search}`;
+    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     if (currentUrl !== desiredUrl) {
       window.history.replaceState(null, '', desiredUrl);
     }
@@ -66,7 +72,13 @@ export default function App() {
   // Handle browser back / forward navigation
   useEffect(() => {
     const handlePopState = () => {
-      setRoute(parseRoute(window.location.pathname));
+      setRoute(
+        parseRoute(
+          window.location.pathname,
+          window.location.search,
+          window.location.hash
+        )
+      );
       setLocale(resolveInitialLocale(window.location.search));
     };
 
@@ -90,7 +102,25 @@ export default function App() {
       const nextUrl = buildUrl(nextRoute, locale);
       window.history.pushState(null, '', nextUrl);
       setRoute(nextRoute);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (!(nextRoute.page === 'category' && nextRoute.itemId)) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    },
+    [locale]
+  );
+
+  const handleSearchQueryChange = useCallback(
+    (query: string) => {
+      const nextRoute: Route = { page: 'search', query };
+      const currentParams = new URLSearchParams(window.location.search);
+      const hasExplicitParam = currentParams.has('lang');
+      const nextUrl = buildUrl(
+        nextRoute,
+        locale,
+        hasExplicitParam && locale === 'th'
+      );
+      window.history.replaceState(null, '', nextUrl);
+      setRoute(nextRoute);
     },
     [locale]
   );
@@ -120,6 +150,7 @@ export default function App() {
         {route.page === 'category' && (
           <CategoryDetailPage
             categoryId={route.categoryId}
+            highlightItemId={route.itemId}
             locale={locale}
             onNavigate={handleNavigate}
           />
@@ -127,9 +158,25 @@ export default function App() {
         {route.page === 'cards' && (
           <CardTeachingsPage locale={locale} onNavigate={handleNavigate} />
         )}
+        {route.page === 'search' && (
+          <SearchPage
+            initialQuery={route.query}
+            locale={locale}
+            onQueryChange={handleSearchQueryChange}
+            onNavigate={handleNavigate}
+          />
+        )}
       </main>
 
       <Footer locale={locale} />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ContentProvider>
+      <AppShell />
+    </ContentProvider>
   );
 }

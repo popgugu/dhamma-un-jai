@@ -1,13 +1,16 @@
-import { Film } from 'lucide-react';
+import { Leaf } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { BackButton } from '../components/BackButton';
 import { LocalizedTextView } from '../components/LocalizedTextView';
-import { cardClips, categories, type DharmaGroup } from '../data';
-import { t, type Locale } from '../i18n';
-import { getRelatedClipsForItem, groupCategoryItems } from '../utils/dharma';
+import { useContent } from '../content/ContentProvider';
+import type { DharmaGroup } from '../data';
+import { getLocalized, t, type Locale } from '../i18n';
+import { groupCategoryItems } from '../utils/dharma';
 import type { Route } from '../utils/routing';
 
 interface CategoryDetailPageProps {
   categoryId: string;
+  highlightItemId?: string;
   locale: Locale;
   onNavigate: (route: Route) => void;
 }
@@ -42,10 +45,37 @@ function getGroupToneClasses(tone: DharmaGroup['tone']): {
 
 export function CategoryDetailPage({
   categoryId,
+  highlightItemId,
   locale,
   onNavigate,
 }: CategoryDetailPageProps) {
+  const { categories } = useContent();
+  const [activeHighlightId, setActiveHighlightId] = useState<string | null>(null);
+
   const category = categories.find((cat) => cat.id === categoryId);
+
+  useEffect(() => {
+    if (!highlightItemId || !category) return;
+
+    let clearTimer: ReturnType<typeof setTimeout> | undefined;
+    const raf = requestAnimationFrame(() => {
+      const target = document.getElementById(highlightItemId);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setActiveHighlightId(highlightItemId);
+        clearTimer = setTimeout(() => {
+          setActiveHighlightId((prev) =>
+            prev === highlightItemId ? null : prev
+          );
+        }, 2200);
+      }
+    });
+
+    return () => {
+      cancelAnimationFrame(raf);
+      if (clearTimer) clearTimeout(clearTimer);
+    };
+  }, [highlightItemId, category]);
 
   if (!category) {
     return (
@@ -124,12 +154,20 @@ export function CategoryDetailPage({
 
               <div className="space-y-5">
                 {section.items.map((item) => {
-                  const relatedClips = getRelatedClipsForItem(item, cardClips);
+                  const hasExample =
+                    item.example !== undefined &&
+                    getLocalized(item.example, locale).text.trim().length > 0;
+                  const isHighlighted = activeHighlightId === item.id;
 
                   return (
                     <article
                       key={item.id}
-                      className="p-6 sm:p-8 rounded-2xl bg-[#FFFDF8] dark:bg-[#211E1A] border border-[#E7DFD0] dark:border-[#352F28] shadow-[0_2px_14px_rgba(62,58,53,0.035)] dark:shadow-none"
+                      id={item.id}
+                      className={`scroll-mt-24 p-6 sm:p-8 rounded-2xl border shadow-[0_2px_14px_rgba(62,58,53,0.035)] dark:shadow-none transition-[border-color,box-shadow,background-color] duration-500 ${
+                        isHighlighted
+                          ? 'bg-[#FBF4E4] dark:bg-[#2B251B] border-[#C8963E] dark:border-[#DFB15E] ring-2 ring-[#C8963E]/35 dark:ring-[#DFB15E]/35'
+                          : 'bg-[#FFFDF8] dark:bg-[#211E1A] border-[#E7DFD0] dark:border-[#352F28]'
+                      }`}
                     >
                       {/* Top editorial metadata line: item number & optional group label */}
                       <div className="flex items-baseline justify-between gap-4 mb-3">
@@ -159,37 +197,20 @@ export function CategoryDetailPage({
                         <LocalizedTextView value={item.explanation} locale={locale} />
                       </p>
 
-                      {/* Related clips */}
-                      <div className="mt-5 pt-4 border-t border-[#EFE9DC] dark:border-[#302B25]">
-                        {relatedClips.length === 0 ? (
-                          <div className="inline-flex items-center gap-2 text-[14px] text-[#7A7267] dark:text-[#9E968B]">
-                            <Film className="w-4 h-4 opacity-70 shrink-0" aria-hidden="true" />
-                            <span>{t(locale, 'category.noClipYet')}</span>
-                          </div>
-                        ) : (
-                          <div>
-                            <p className="text-[14px] text-[#6C655C] dark:text-[#B6AEA2] mb-2">
-                              {t(locale, 'category.relatedClips')}
+                      {/* Everyday example (shown only if present) */}
+                      {hasExample && item.example && (
+                        <div className="mt-5 pt-4 border-t border-[#EFE9DC] dark:border-[#302B25]">
+                          <div className="rounded-xl bg-[#F5EFE2]/80 dark:bg-[#2A2621] px-4 py-3.5">
+                            <div className="flex items-center gap-2 text-[14px] font-medium text-[#56684C] dark:text-[#99AA8E]">
+                              <Leaf className="w-4 h-4 shrink-0" aria-hidden="true" />
+                              <span>{t(locale, 'category.exampleLabel')}</span>
+                            </div>
+                            <p className="mt-1.5 text-[15.5px] text-[#524C44] dark:text-[#CFC8BC] leading-[1.75]">
+                              <LocalizedTextView value={item.example} locale={locale} />
                             </p>
-                            <ul className="space-y-1.5">
-                              {relatedClips.map((clip) => (
-                                <li
-                                  key={clip.clipNo}
-                                  className="text-[15px] text-[#3E3A35] dark:text-[#EFEAE0] flex items-baseline gap-2"
-                                >
-                                  <span className="text-[#9A6D1F] dark:text-[#DFB15E] tabular-nums shrink-0">
-                                    {t(locale, 'cards.clipNumberPrefix')} {clip.clipNo}
-                                  </span>
-                                  <span aria-hidden="true" className="text-[#C8963E]/50">
-                                    ·
-                                  </span>
-                                  <LocalizedTextView value={clip.title} locale={locale} />
-                                </li>
-                              ))}
-                            </ul>
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </article>
                   );
                 })}
@@ -224,6 +245,10 @@ export function CategoryDetailPage({
               </li>
             ))}
           </ul>
+
+          <p className="mt-5 text-[13.5px] text-[#7A7267] dark:text-[#9E968B] leading-[1.7]">
+            {t(locale, 'category.exampleDisclaimer')}
+          </p>
         </section>
       )}
     </div>

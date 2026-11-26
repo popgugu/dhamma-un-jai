@@ -1,10 +1,10 @@
 /**
  * Central locale definition.
  * To add a new language (e.g. "zh"):
- * 1. Add "zh" to the Locale union type below.
- * 2. Append an entry to SUPPORTED_LOCALES.
- * 3. Add a dictionary file in src/i18n/zh.ts and register it in src/i18n/index.ts.
- * 4. Add optional "zh" fields to content items in src/data.ts.
+ * 1. Add "zh" to the Locale union type below and append an entry to SUPPORTED_LOCALES.
+ * 2. Add a dictionary file in src/i18n/zh.ts and register it in src/i18n/index.ts.
+ * 3. Add *_zh columns in the Google Sheet and map them in src/content/loader.ts
+ *    (and optionally include them in the built-in snapshot in src/data.ts).
  */
 export type Locale = 'th' | 'en';
 
@@ -39,6 +39,7 @@ export interface Dictionary {
     home: string;
     completeTeachings: string;
     cardTeachings: string;
+    search: string;
     back: string;
     switchLanguage: string;
     darkMode: string;
@@ -59,14 +60,13 @@ export interface Dictionary {
     title: string;
     description: string;
     itemCount: string;
-    clipProgress: string;
     viewCategory: string;
   };
   category: {
     translationNote: string;
     groupPrefix: string;
-    relatedClips: string;
-    noClipYet: string;
+    exampleLabel: string;
+    exampleDisclaimer: string;
     sources: string;
     notFound: string;
     backToList: string;
@@ -77,6 +77,16 @@ export interface Dictionary {
     emptyState: string;
     clipNumberPrefix: string;
     uncategorized: string;
+  };
+  search: {
+    title: string;
+    placeholder: string;
+    inputLabel: string;
+    clear: string;
+    emptyState: string;
+    completeSection: string;
+    cardsSection: string;
+    exampleSnippetPrefix: string;
   };
   fallback: {
     shownInThai: string;

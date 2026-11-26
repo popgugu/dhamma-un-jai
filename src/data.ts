@@ -13,8 +13,8 @@ export interface DharmaItem {
   pali: LocalizedText;
   shortMeaning: LocalizedText;
   explanation: LocalizedText;
+  example?: LocalizedText;
   groupId?: string;
-  clipIds: string[];
 }
 
 export interface DharmaSource {
@@ -33,10 +33,9 @@ export interface DharmaCategory {
 
 export interface CardClip {
   clipNo: string;
-  title: LocalizedText;
   date: string;
-  categoryId: string;
-  relatedItemIds: string[];
+  category: string;
+  title: LocalizedText;
 }
 
 export const categories: DharmaCategory[] = [
@@ -66,7 +65,6 @@ export const categories: DharmaCategory[] = [
           th: 'เคารพในชีวิตของผู้อื่น',
           en: 'Respect for the lives of others.',
         },
-        clipIds: [],
       },
       {
         id: 'five-precepts-2',
@@ -83,7 +81,6 @@ export const categories: DharmaCategory[] = [
           th: 'เคารพในทรัพย์สินของผู้อื่น',
           en: 'Respect for the property of others.',
         },
-        clipIds: [],
       },
       {
         id: 'five-precepts-3',
@@ -100,7 +97,6 @@ export const categories: DharmaCategory[] = [
           th: 'เคารพในคู่ครองและคนรักของผู้อื่น',
           en: 'Respect for the partners and loved ones of others.',
         },
-        clipIds: [],
       },
       {
         id: 'five-precepts-4',
@@ -117,7 +113,6 @@ export const categories: DharmaCategory[] = [
           th: 'ซื่อตรงและจริงใจต่อกัน',
           en: 'Honesty and sincerity with one another.',
         },
-        clipIds: [],
       },
       {
         id: 'five-precepts-5',
@@ -134,7 +129,6 @@ export const categories: DharmaCategory[] = [
           th: 'รักษาสติให้ตื่นรู้',
           en: 'Keeping the mind clear and aware.',
         },
-        clipIds: [],
       },
     ],
     sources: [
@@ -180,7 +174,6 @@ export const categories: DharmaCategory[] = [
           th: 'เคารพในชีวิตของผู้อื่น',
           en: 'Respect for the lives of others.',
         },
-        clipIds: [],
       },
       {
         id: 'eight-precepts-2',
@@ -197,7 +190,6 @@ export const categories: DharmaCategory[] = [
           th: 'เคารพในทรัพย์สินของผู้อื่น',
           en: 'Respect for the property of others.',
         },
-        clipIds: [],
       },
       {
         id: 'eight-precepts-3',
@@ -214,7 +206,6 @@ export const categories: DharmaCategory[] = [
           th: 'ฝึกความสำรวมกายและใจ',
           en: 'Training restraint of body and mind.',
         },
-        clipIds: [],
       },
       {
         id: 'eight-precepts-4',
@@ -231,7 +222,6 @@ export const categories: DharmaCategory[] = [
           th: 'ซื่อตรงและจริงใจต่อกัน',
           en: 'Honesty and sincerity with one another.',
         },
-        clipIds: [],
       },
       {
         id: 'eight-precepts-5',
@@ -248,7 +238,6 @@ export const categories: DharmaCategory[] = [
           th: 'รักษาสติให้ตื่นรู้',
           en: 'Keeping the mind clear and aware.',
         },
-        clipIds: [],
       },
       {
         id: 'eight-precepts-6',
@@ -265,7 +254,6 @@ export const categories: DharmaCategory[] = [
           th: 'ฝึกความพอดีและลดความอยาก',
           en: 'Training moderation and lessening craving.',
         },
-        clipIds: [],
       },
       {
         id: 'eight-precepts-7',
@@ -282,7 +270,6 @@ export const categories: DharmaCategory[] = [
           th: 'ลดสิ่งเร้าให้ใจสงบ',
           en: 'Reducing stimulation so the mind can be calm.',
         },
-        clipIds: [],
       },
       {
         id: 'eight-precepts-8',
@@ -299,7 +286,6 @@ export const categories: DharmaCategory[] = [
           th: 'ฝึกความเรียบง่ายและไม่ยึดติดความสบาย',
           en: 'Training simplicity and letting go of attachment to comfort.',
         },
-        clipIds: [],
       },
     ],
     sources: [
@@ -384,7 +370,6 @@ export const categories: DharmaCategory[] = [
           en: 'Seeing things as they truly are: understanding the Four Noble Truths — suffering, its cause, its cessation, and the path to its cessation.',
         },
         groupId: 'wisdom',
-        clipIds: [],
       },
       {
         id: 'noble-eightfold-path-2',
@@ -402,7 +387,6 @@ export const categories: DharmaCategory[] = [
           en: 'Thoughts of renunciation, of goodwill, and of harmlessness.',
         },
         groupId: 'wisdom',
-        clipIds: [],
       },
       {
         id: 'noble-eightfold-path-3',
@@ -420,7 +404,6 @@ export const categories: DharmaCategory[] = [
           en: 'Abstaining from lying, divisive speech, harsh speech, and idle chatter.',
         },
         groupId: 'conduct',
-        clipIds: [],
       },
       {
         id: 'noble-eightfold-path-4',
@@ -438,7 +421,6 @@ export const categories: DharmaCategory[] = [
           en: 'Abstaining from killing, stealing, and sexual misconduct.',
         },
         groupId: 'conduct',
-        clipIds: [],
       },
       {
         id: 'noble-eightfold-path-5',
@@ -456,7 +438,6 @@ export const categories: DharmaCategory[] = [
           en: 'Giving up wrong livelihood and earning a living honestly.',
         },
         groupId: 'conduct',
-        clipIds: [],
       },
       {
         id: 'noble-eightfold-path-6',
@@ -474,7 +455,6 @@ export const categories: DharmaCategory[] = [
           en: 'Effort to prevent unwholesome states from arising, to abandon those that have arisen, to develop wholesome states, and to sustain those that have arisen.',
         },
         groupId: 'concentration',
-        clipIds: [],
       },
       {
         id: 'noble-eightfold-path-7',
@@ -492,7 +472,6 @@ export const categories: DharmaCategory[] = [
           en: 'Mindful contemplation of the body, feelings, mind, and mental phenomena (the Four Foundations of Mindfulness).',
         },
         groupId: 'concentration',
-        clipIds: [],
       },
       {
         id: 'noble-eightfold-path-8',
@@ -510,7 +489,6 @@ export const categories: DharmaCategory[] = [
           en: 'A steady, unified, and collected mind.',
         },
         groupId: 'concentration',
-        clipIds: [],
       },
     ],
     sources: [

@@ -3,10 +3,19 @@ import { DEFAULT_LOCALE, type Locale } from '../i18n/types';
 export type Route =
   | { page: 'home' }
   | { page: 'teachings' }
-  | { page: 'category'; categoryId: string }
-  | { page: 'cards' };
+  | { page: 'category'; categoryId: string; itemId?: string }
+  | { page: 'cards' }
+  | { page: 'search'; query: string };
 
-export function parseRoute(pathname: string): Route {
+export function parseRoute(pathname: string, search = '', hash = ''): Route {
+  const params = new URLSearchParams(search);
+  if (params.get('page') === 'search') {
+    return {
+      page: 'search',
+      query: params.get('q') ?? '',
+    };
+  }
+
   const normalized = pathname.replace(/\/+$/, '') || '/';
 
   if (normalized === '/' || normalized === '') {
@@ -18,7 +27,10 @@ export function parseRoute(pathname: string): Route {
   if (normalized.startsWith('/teachings/')) {
     const categoryId = decodeURIComponent(normalized.slice('/teachings/'.length));
     if (categoryId) {
-      return { page: 'category', categoryId };
+      const cleanHash = hash.startsWith('#') ? decodeURIComponent(hash.slice(1)) : '';
+      return cleanHash
+        ? { page: 'category', categoryId, itemId: cleanHash }
+        : { page: 'category', categoryId };
     }
   }
   if (normalized === '/cards') {
@@ -31,6 +43,7 @@ export function parseRoute(pathname: string): Route {
 export function routeToPathname(route: Route): string {
   switch (route.page) {
     case 'home':
+    case 'search':
       return '/';
     case 'teachings':
       return '/teachings';
@@ -43,13 +56,33 @@ export function routeToPathname(route: Route): string {
 
 /**
  * Build a URL path preserving the active language query parameter.
- * Always appends ?lang=<locale> when non-default (e.g. ?lang=en), or when
- * explicitly requested so shared links always open in the right language.
+ * Search routes use ?page=search&q=... and preserve ?lang.
+ * Category routes preserve optional #itemId anchors for smooth scroll targets.
  */
-export function buildUrl(route: Route, locale: Locale, includeDefaultParam = false): string {
+export function buildUrl(
+  route: Route,
+  locale: Locale,
+  includeDefaultParam = false
+): string {
   const pathname = routeToPathname(route);
-  if (locale !== DEFAULT_LOCALE || includeDefaultParam) {
-    return `${pathname}?lang=${encodeURIComponent(locale)}`;
+  const params = new URLSearchParams();
+
+  if (route.page === 'search') {
+    params.set('page', 'search');
+    if (route.query) {
+      params.set('q', route.query);
+    }
   }
-  return pathname;
+
+  if (locale !== DEFAULT_LOCALE || includeDefaultParam) {
+    params.set('lang', locale);
+  }
+
+  const queryString = params.toString();
+  const hash =
+    route.page === 'category' && route.itemId
+      ? `#${encodeURIComponent(route.itemId)}`
+      : '';
+
+  return `${pathname}${queryString ? `?${queryString}` : ''}${hash}`;
 }

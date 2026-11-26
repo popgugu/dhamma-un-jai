@@ -1,6 +1,6 @@
 import { ArrowRight, BookOpen, Layers } from 'lucide-react';
 import type { MouseEvent } from 'react';
-import { cardClips, categories } from '../data';
+import { useContent } from '../content/ContentProvider';
 import { t, type Locale } from '../i18n';
 import { buildUrl, type Route } from '../utils/routing';
 import { LotusIcon } from '../components/LotusIcon';
@@ -11,6 +11,7 @@ interface HomePageProps {
 }
 
 export function HomePage({ locale, onNavigate }: HomePageProps) {
+  const { categories, cardClips } = useContent();
   const totalTeachings = categories.reduce((sum, cat) => sum + cat.items.length, 0);
 
   const handleCardClick = (target: Route) => (e: MouseEvent<HTMLAnchorElement>) => {

@@ -1,14 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { cardClips, categories, type CardClip } from '../data';
-import {
-  getCategoryClipProgress,
-  getRelatedClipsForItem,
-  groupCardClipsByCategory,
-  groupCategoryItems,
-} from './dharma';
+import { groupCardClipsByCategory, groupCategoryItems } from './dharma';
 
-test('categories are in the required order with exact item counts and empty clipIds', () => {
+test('categories are in the required order with exact item counts', () => {
   assert.deepEqual(
     categories.map((c) => c.id),
     ['five-precepts', 'eight-precepts', 'noble-eightfold-path']
@@ -21,7 +16,6 @@ test('categories are in the required order with exact item counts and empty clip
   for (const cat of categories) {
     assert.ok(cat.sources.length >= 2, `${cat.id} should include sources`);
     for (const item of cat.items) {
-      assert.deepEqual(item.clipIds, []);
       assert.ok(item.pali.th.length > 0);
       assert.ok((item.pali.en ?? '').length > 0);
     }
@@ -46,35 +40,42 @@ test('Noble Eightfold Path groups into three trainings (2, 3, 3 items)', () => {
   );
 });
 
-test('clip progress and card grouping handle empty and future populated clips', () => {
-  const fivePrecepts = categories[0];
-  assert.deepEqual(getCategoryClipProgress(fivePrecepts, []), {
-    withClips: 0,
-    total: 5,
-    percent: 0,
-  });
+test('card clips group by plain-text category label in order of first appearance', () => {
+  assert.deepEqual(groupCardClipsByCategory([]), []);
 
   const sampleClips: CardClip[] = [
     {
       clipNo: '01',
       title: { th: 'เมตตาต่อทุกชีวิต', en: 'Kindness to All Beings' },
-      date: '2026-11-26',
-      categoryId: 'five-precepts',
-      relatedItemIds: ['five-precepts-1'],
+      date: '2026-11-20',
+      category: 'สติในชีวิตประจำวัน',
+    },
+    {
+      clipNo: '02',
+      title: { th: 'ปล่อยวางความโกรธ', en: 'Letting Go of Anger' },
+      date: '2026-11-21',
+      category: 'ความสงบใจ',
+    },
+    {
+      clipNo: '03',
+      title: { th: 'ลมหายใจที่ผ่อนคลาย', en: 'A Relaxed Breath' },
+      date: '2026-11-22',
+      category: 'สติในชีวิตประจำวัน',
     },
   ];
 
-  assert.deepEqual(getCategoryClipProgress(fivePrecepts, sampleClips), {
-    withClips: 1,
-    total: 5,
-    percent: 20,
-  });
-  assert.equal(getRelatedClipsForItem(fivePrecepts.items[0], sampleClips).length, 1);
-  assert.equal(getRelatedClipsForItem(fivePrecepts.items[1], sampleClips).length, 0);
-
-  const grouped = groupCardClipsByCategory(sampleClips, categories);
-  assert.equal(grouped.length, 1);
-  assert.equal(grouped[0].category?.id, 'five-precepts');
-  assert.equal(grouped[0].clips.length, 1);
-  assert.deepEqual(groupCardClipsByCategory([], categories), []);
+  const grouped = groupCardClipsByCategory(sampleClips);
+  assert.equal(grouped.length, 2);
+  assert.deepEqual(
+    grouped.map((g) => g.category),
+    ['สติในชีวิตประจำวัน', 'ความสงบใจ']
+  );
+  assert.deepEqual(
+    grouped[0].clips.map((c) => c.clipNo),
+    ['01', '03']
+  );
+  assert.deepEqual(
+    grouped[1].clips.map((c) => c.clipNo),
+    ['02']
+  );
 });

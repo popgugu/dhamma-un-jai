@@ -56,8 +56,16 @@ test('localStorage errors are caught safely without crashing', () => {
 test('t() formats bilingual strings and interpolates parameters', () => {
   assert.equal(t('th', 'site.title'), 'ธรรมะอุ่นใจ');
   assert.equal(t('en', 'site.title'), 'Dhamma Un Jai');
-  assert.equal(t('th', 'teachings.clipProgress', { X: 0, N: 5 }), 'มีคลิปแล้ว 0 จาก 5');
-  assert.equal(t('en', 'teachings.clipProgress', { X: 0, N: 5 }), '0 of 5 have clips');
+  assert.equal(t('th', 'teachings.itemCount', { N: 5 }), '5 ข้อ');
+  assert.equal(t('en', 'teachings.itemCount', { N: 5 }), '5 items');
+  assert.equal(
+    t('th', 'search.emptyState', { q: 'ทดสอบ' }),
+    'ไม่พบผลลัพธ์สำหรับ “ทดสอบ”'
+  );
+  assert.equal(
+    t('en', 'search.emptyState', { q: 'test' }),
+    'No results for “test”'
+  );
   assert.equal(
     t('en', 'category.translationNote'),
     'English text is translated from the original Thai.'
@@ -83,20 +91,42 @@ test('getLocalized falls back to Thai text with isFallback flag when translation
   });
 });
 
-test('routing parses paths and preserves ?lang when building URLs', () => {
+test('routing parses paths, search query URLs, item anchors, and preserves ?lang', () => {
   assert.deepEqual(parseRoute('/'), { page: 'home' });
   assert.deepEqual(parseRoute('/teachings'), { page: 'teachings' });
-  assert.deepEqual(parseRoute('/teachings/five-precepts'), {
-    page: 'category',
-    categoryId: 'five-precepts',
-  });
+  assert.deepEqual(
+    parseRoute('/teachings/five-precepts', '', '#five-precepts-2'),
+    {
+      page: 'category',
+      categoryId: 'five-precepts',
+      itemId: 'five-precepts-2',
+    }
+  );
   assert.deepEqual(parseRoute('/cards'), { page: 'cards' });
+  assert.deepEqual(parseRoute('/', '?page=search&q=Right+View&lang=en'), {
+    page: 'search',
+    query: 'Right View',
+  });
 
   assert.equal(buildUrl({ page: 'home' }, 'th'), '/');
   assert.equal(buildUrl({ page: 'home' }, 'en'), '/?lang=en');
   assert.equal(
-    buildUrl({ page: 'category', categoryId: 'noble-eightfold-path' }, 'en'),
-    '/teachings/noble-eightfold-path?lang=en'
+    buildUrl(
+      {
+        page: 'category',
+        categoryId: 'noble-eightfold-path',
+        itemId: 'noble-eightfold-path-1',
+      },
+      'en'
+    ),
+    '/teachings/noble-eightfold-path?lang=en#noble-eightfold-path-1'
   );
-  assert.equal(buildUrl({ page: 'cards' }, 'en'), '/cards?lang=en');
+  assert.equal(
+    buildUrl({ page: 'search', query: 'sammaditthi' }, 'en'),
+    '/?page=search&q=sammaditthi&lang=en'
+  );
+  assert.equal(
+    buildUrl({ page: 'search', query: '' }, 'th'),
+    '/?page=search'
+  );
 });

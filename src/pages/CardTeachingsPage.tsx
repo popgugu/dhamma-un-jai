@@ -1,7 +1,7 @@
 import { BackButton } from '../components/BackButton';
 import { LocalizedTextView } from '../components/LocalizedTextView';
 import { LotusIcon } from '../components/LotusIcon';
-import { cardClips, categories } from '../data';
+import { useContent } from '../content/ContentProvider';
 import { t, type Locale } from '../i18n';
 import { groupCardClipsByCategory } from '../utils/dharma';
 import type { Route } from '../utils/routing';
@@ -15,7 +15,8 @@ export function CardTeachingsPage({
   locale,
   onNavigate,
 }: CardTeachingsPageProps) {
-  const groupedClips = groupCardClipsByCategory(cardClips, categories);
+  const { cardClips } = useContent();
+  const groupedClips = groupCardClipsByCategory(cardClips);
 
   return (
     <div className="max-w-3xl mx-auto animate-gentle-fade">
@@ -46,15 +47,14 @@ export function CardTeachingsPage({
         </section>
       ) : (
         <div className="space-y-10">
-          {groupedClips.map((group) => (
-            <section key={group.categoryId} className="space-y-4">
+          {groupedClips.map((group, groupIndex) => (
+            <section
+              key={group.category || `uncategorized-${groupIndex}`}
+              className="space-y-4"
+            >
               <div className="flex items-center gap-4">
                 <h2 className="font-serif text-xl font-medium text-[#56684C] dark:text-[#99AA8E] whitespace-nowrap">
-                  {group.category ? (
-                    <LocalizedTextView value={group.category.name} locale={locale} />
-                  ) : (
-                    t(locale, 'cards.uncategorized')
-                  )}
+                  {group.category || t(locale, 'cards.uncategorized')}
                 </h2>
                 <div
                   className="h-px flex-1 bg-[#7A8B6F]/30 dark:bg-[#99AA8E]/25"
@@ -76,12 +76,14 @@ export function CardTeachingsPage({
                         <LocalizedTextView value={clip.title} locale={locale} />
                       </h3>
                     </div>
-                    <time
-                      dateTime={clip.date}
-                      className="text-[14px] text-[#6C655C] dark:text-[#B6AEA2] tabular-nums whitespace-nowrap shrink-0"
-                    >
-                      {clip.date}
-                    </time>
+                    {clip.date && (
+                      <time
+                        dateTime={clip.date}
+                        className="text-[14px] text-[#6C655C] dark:text-[#B6AEA2] tabular-nums whitespace-nowrap shrink-0"
+                      >
+                        {clip.date}
+                      </time>
+                    )}
                   </article>
                 ))}
               </div>

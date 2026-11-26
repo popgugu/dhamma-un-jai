@@ -169,24 +169,22 @@ export function CategoryDetailPage({
                           : 'bg-[#FFFDF8] dark:bg-[#211E1A] border-[#E7DFD0] dark:border-[#352F28]'
                       }`}
                     >
-                      {/* Top editorial metadata line: item number & optional group label */}
-                      <div className="flex items-baseline justify-between gap-4 mb-3">
-                        <span className="font-serif text-[16px] font-medium text-[#9A6D1F] dark:text-[#DFB15E] tabular-nums">
-                          {item.number}.
-                        </span>
+                      {/* Pali name with inline number prefix & optional group label */}
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                        <h3 className="font-serif text-[1.25rem] sm:text-[1.375rem] font-medium text-[#3E3A35] dark:text-[#EFEAE0] leading-[1.55]">
+                          <span className="text-[#9A6D1F] dark:text-[#DFB15E] tabular-nums">
+                            {item.number}.
+                          </span>{' '}
+                          <LocalizedTextView value={item.pali} locale={locale} />
+                        </h3>
 
                         {section.group && groupTone && (
-                          <span className={`text-[14px] font-medium ${groupTone.labelText}`}>
+                          <span className={`text-[14px] font-medium shrink-0 ${groupTone.labelText}`}>
                             {t(locale, 'category.groupPrefix')}:{' '}
                             <LocalizedTextView value={section.group.label} locale={locale} />
                           </span>
                         )}
                       </div>
-
-                      {/* Pali name (Thai script in TH; romanized Pali with diacritics followed by English name in EN) */}
-                      <h3 className="font-serif text-[1.25rem] sm:text-[1.375rem] font-medium text-[#3E3A35] dark:text-[#EFEAE0] leading-[1.55]">
-                        <LocalizedTextView value={item.pali} locale={locale} />
-                      </h3>
 
                       <p className="mt-1.5 text-[18px] font-medium text-[#524C44] dark:text-[#DDD6CB] leading-[1.75]">
                         <LocalizedTextView value={item.shortMeaning} locale={locale} />

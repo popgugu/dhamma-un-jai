@@ -1,4 +1,4 @@
-export const SHEET_BASE = '';
+export const SHEET_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT_Cj5ZVFdeDnXqs4Rgq0tPIPoXXciLd2O02FCkcA_kOHIr_Z1u6f5VyJ8zaLwA91GDv-W3lbT93k7D/pub';
 
 export const GIDS = {
   categories: '1431877312',

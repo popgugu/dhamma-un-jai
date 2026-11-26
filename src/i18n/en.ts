@@ -50,6 +50,9 @@ export const en: Dictionary = {
     clipNumberPrefix: 'Clip',
     uncategorized: 'Other',
     watchClip: 'Watch',
+    followChannel: 'Follow',
+    youtubeAria: 'Dhamma Un Jai on YouTube',
+    facebookAria: 'Dhamma Un Jai on Facebook',
   },
   search: {
     title: 'Search',

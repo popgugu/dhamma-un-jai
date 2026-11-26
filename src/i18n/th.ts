@@ -50,6 +50,9 @@ export const th: Dictionary = {
     clipNumberPrefix: 'คลิปที่',
     uncategorized: 'หมวดอื่นๆ',
     watchClip: 'ดูคลิป',
+    followChannel: 'ติดตามช่อง',
+    youtubeAria: 'YouTube ธรรมะอุ่นใจ',
+    facebookAria: 'Facebook ธรรมะอุ่นใจ',
   },
   search: {
     title: 'ค้นหา',

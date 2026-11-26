@@ -78,6 +78,9 @@ export interface Dictionary {
     clipNumberPrefix: string;
     uncategorized: string;
     watchClip: string;
+    followChannel: string;
+    youtubeAria: string;
+    facebookAria: string;
   };
   search: {
     title: string;

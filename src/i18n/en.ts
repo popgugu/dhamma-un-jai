@@ -49,7 +49,7 @@ export const en: Dictionary = {
     emptyState: 'Coming soon — teachings from the dharma cards will be added over time.',
     clipNumberPrefix: 'Clip',
     uncategorized: 'Other',
-    watchClip: 'Watch',
+    watchClip: 'Watch (in Thai)',
     followChannel: 'Follow',
     youtubeAria: 'Dhamma Un Jai on YouTube',
     facebookAria: 'Dhamma Un Jai on Facebook',

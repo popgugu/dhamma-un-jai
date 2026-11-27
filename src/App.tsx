@@ -8,6 +8,7 @@ import { CategoryDetailPage } from './pages/CategoryDetailPage';
 import { CompleteTeachingsPage } from './pages/CompleteTeachingsPage';
 import { HomePage } from './pages/HomePage';
 import { SearchPage } from './pages/SearchPage';
+import { buildAnalyticsPagePath, trackPageView } from './utils/analytics';
 import { buildUrl, parseRoute, type Route } from './utils/routing';
 
 const THEME_STORAGE_KEY = 'dhamma-un-jai-theme';
@@ -58,6 +59,12 @@ function AppShell() {
       window.history.replaceState(null, '', desiredUrl);
     }
   }, [locale, route]);
+
+  // Send GA4 page_view on initial load and on every route or locale change (production only)
+  const analyticsPagePath = buildAnalyticsPagePath(route, locale);
+  useEffect(() => {
+    trackPageView(analyticsPagePath);
+  }, [analyticsPagePath]);
 
   // Sync dark mode class on <html>
   useEffect(() => {
